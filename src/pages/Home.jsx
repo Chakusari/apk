@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, BellOff, Trash2, Clock } from 'lucide-react';
-import { addLog, deleteLastLog, getTodayLogs, getConfig, setConfig } from '../utils/storage';
+import { addLog, deleteLastLog, getTodayLogs, getConfig } from '../utils/storage';
 import { scheduleReminder, clearReminder, getTimeSinceLastSmoke, requestNotificationPermission, getNextReminderTime } from '../utils/notifications';
 
 export default function HomePage() {
@@ -11,6 +11,7 @@ export default function HomePage() {
   const [toast, setToast] = useState(null);
   const [nextReminder, setNextReminder] = useState(null);
   const [ripples, setRipples] = useState([]);
+  const notifRef = useRef(false);
 
   const refresh = useCallback(() => {
     setTodayCount(getTodayLogs().length);
@@ -26,6 +27,12 @@ export default function HomePage() {
     const interval = setInterval(refresh, 1000);
     return () => clearInterval(interval);
   }, [refresh]);
+
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      notifRef.current = true;
+    }
+  }, []);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -44,7 +51,7 @@ export default function HomePage() {
     clearReminder();
     scheduleReminder();
     refresh();
-    showToast('ثبت شد! 💪');
+    showToast('Logged!');
   };
 
   const handleUndo = () => {
@@ -52,23 +59,24 @@ export default function HomePage() {
       clearReminder();
       scheduleReminder();
       refresh();
-      showToast('آخرین ثبت پاک شد');
+      showToast('Last entry removed');
     } else {
-      showToast('چیزی برای حذف نیست', 'error');
+      showToast('Nothing to undo', 'error');
     }
   };
 
-  const handleNotificationToggle = async () => {
+  const handleNotificationToggle = () => {
     if (notificationEnabled) {
       setNotificationEnabled(false);
-    } else {
-      const granted = await requestNotificationPermission();
+      return;
+    }
+    requestNotificationPermission().then((granted) => {
       setNotificationEnabled(granted);
       if (granted) {
         scheduleReminder();
-        showToast('یادآوری فعال شد');
+        showToast('Reminders enabled');
       }
-    }
+    });
   };
 
   const config = getConfig();
@@ -95,20 +103,22 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div>
-          <h1 className="page-title">سیگی</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: 2 }}>
-            همراه ترک سیگارت
+          <h1 className="page-title">Cigi</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: 2, fontWeight: 500 }}>
+            Your quit companion
           </p>
         </div>
         <button
           onClick={handleNotificationToggle}
           style={{
             marginLeft: 'auto',
-            background: 'none',
+            background: notificationEnabled ? 'var(--accent-glow)' : 'none',
             border: 'none',
-            color: notificationEnabled ? 'var(--accent)' : 'var(--text-muted)',
+            color: notificationEnabled ? 'var(--accent-light)' : 'var(--text-muted)',
             cursor: 'pointer',
-            padding: 8,
+            padding: 10,
+            borderRadius: '50%',
+            transition: 'all 0.2s ease',
           }}
         >
           {notificationEnabled ? <Bell size={22} /> : <BellOff size={22} />}
@@ -123,13 +133,13 @@ export default function HomePage() {
         >
           <span style={{ fontSize: 20 }}>🔔</span>
           <span className="notification-banner-text">
-            یادآوری رو فعال کن تا بهت بگه کی وقتشه سیگار نکشی
+            Enable reminders to get notified when it's time to stay smoke-free
           </span>
           <button
             className="notification-banner-btn"
             onClick={handleNotificationToggle}
           >
-            فعال کن
+            Enable
           </button>
         </motion.div>
       )}
@@ -142,26 +152,26 @@ export default function HomePage() {
       >
         <div className="stat-box">
           <div className="stat-value">{todayCount}</div>
-          <div className="stat-label">سیگار امروز</div>
+          <div className="stat-label">Today</div>
         </div>
         <div className="stat-box">
           <div className="stat-value" style={{ color: 'var(--success)' }}>
             {timeSince ? `${hours}:${String(minutes).padStart(2, '0')}` : '--:--'}
           </div>
-          <div className="stat-label">فاصله از آخرین</div>
+          <div className="stat-label">Since Last</div>
         </div>
       </motion.div>
 
       {timeSince && (
         <motion.div
           className="card"
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
         >
-          <div style={{ textAlign: 'center', marginBottom: 8, fontSize: 13, color: 'var(--text-muted)' }}>
-            <Clock size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 4 }} />
-            زمان از آخرین سیگار
+          <div style={{ textAlign: 'center', marginBottom: 8, fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <Clock size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            Time Since Last Cigarette
           </div>
           <div className="timer-display">
             <div className="timer-unit">
@@ -173,7 +183,7 @@ export default function HomePage() {
               >
                 {String(hours).padStart(2, '0')}
               </motion.span>
-              <span className="timer-label">ساعت</span>
+              <span className="timer-label">Hours</span>
             </div>
             <span className="timer-sep">:</span>
             <div className="timer-unit">
@@ -185,7 +195,7 @@ export default function HomePage() {
               >
                 {String(minutes).padStart(2, '0')}
               </motion.span>
-              <span className="timer-label">دقیقه</span>
+              <span className="timer-label">Min</span>
             </div>
             <span className="timer-sep">:</span>
             <div className="timer-unit">
@@ -194,21 +204,21 @@ export default function HomePage() {
                 key={seconds}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ color: 'var(--text-muted)', fontSize: 28 }}
+                style={{ color: 'var(--text-muted)', fontSize: 32 }}
               >
                 {String(seconds).padStart(2, '0')}
               </motion.span>
-              <span className="timer-label">ثانیه</span>
+              <span className="timer-label">Sec</span>
             </div>
           </div>
 
           {nextReminder && notificationEnabled && (
             <div className="next-reminder">
-              <Bell size={16} className="next-reminder-icon" />
+              <Bell size={15} className="next-reminder-icon" />
               <span className="next-reminder-text">
-                یادآوری بعدی:{' '}
+                Next reminder at{' '}
                 <span className="next-reminder-time">
-                  {nextReminder.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
+                  {nextReminder.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </span>
             </div>
@@ -231,7 +241,7 @@ export default function HomePage() {
             />
           ))}
           <span className="smoke-btn-emoji">🚬</span>
-          <span>ثبت سیگار</span>
+          <span>Log Cigarette</span>
         </button>
       </motion.div>
 
@@ -243,7 +253,7 @@ export default function HomePage() {
         >
           <button className="btn btn-danger" onClick={handleUndo}>
             <Trash2 size={18} />
-            حذف آخرین ثبت
+            Undo Last
           </button>
         </motion.div>
       )}
@@ -256,8 +266,8 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
         >
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, textAlign: 'center' }}>
-            لیست امروز
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, textAlign: 'center', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Today's Log
           </div>
           <div className="log-list">
             {getTodayLogs()
@@ -269,7 +279,7 @@ export default function HomePage() {
                   <div key={log.id} className="log-item">
                     <div>
                       <div className="log-time">
-                        {t.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
+                        {t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                       {i > 0 && (
                         <div className="log-date">
@@ -279,7 +289,7 @@ export default function HomePage() {
                               const diff = new Date(log.timestamp) - new Date(prev[i - 1].timestamp);
                               const h = Math.floor(diff / 3600000);
                               const m = Math.floor((diff % 3600000) / 60000);
-                              return h > 0 ? `${h} ساعت و ${m} دقیقه قبل` : `${m} دقیقه قبل`;
+                              return h > 0 ? `${h}h ${m}m ago` : `${m}m ago`;
                             }
                             return null;
                           })()}

@@ -7,9 +7,9 @@ import SettingsPage from './pages/Settings';
 import './App.css';
 
 const navItems = [
-  { to: '/', icon: Home, label: 'خانه' },
-  { to: '/stats', icon: BarChart3, label: 'آمار' },
-  { to: '/settings', icon: Settings, label: 'تنظیمات' },
+  { to: '/', icon: Home, label: 'Home' },
+  { to: '/stats', icon: BarChart3, label: 'Stats' },
+  { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function App() {
@@ -37,7 +37,7 @@ export default function App() {
             }
           >
             <div className="nav-icon-wrap">
-              <Icon size={22} strokeWidth={isActive => isActive ? 2.5 : 1.8} />
+              <Icon size={22} />
             </div>
             <span className="nav-label">{label}</span>
           </NavLink>

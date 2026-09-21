@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Cigi</string>
     <string name="title_activity_main">Cigi</string>
-    <string name="package_name">com.cigi.smokingcessation</string>
-    <string name="custom_url_scheme">com.cigi.smokingcessation</string>
+    <string name="package_name">com.cigi.app</string>
+    <string name="custom_url_scheme">com.cigi.app</string>
 </resources>

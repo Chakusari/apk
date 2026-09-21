@@ -97,7 +97,7 @@ export function getWeeklyData() {
     d.setDate(d.getDate() - i);
     const dateStr = d.toLocaleDateString('en-CA');
     const count = logs.filter(l => l.timestamp.startsWith(dateStr)).length;
-    const dayName = d.toLocaleDateString('fa-IR', { weekday: 'short' });
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
     data.push({ date: dateStr, count, dayName });
   }
   return data;

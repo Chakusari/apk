@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Cigarette, DollarSign, RotateCcw, Info, ChevronDown, Target } from 'lucide-react';
-import { getConfig, setConfig, getLogs } from '../utils/storage';
+import { Clock, Cigarette, DollarSign, RotateCcw, Info, Target } from 'lucide-react';
+import { getConfig, setConfig } from '../utils/storage';
 import { scheduleReminder } from '../utils/notifications';
 
 export default function SettingsPage() {
@@ -19,18 +19,18 @@ export default function SettingsPage() {
   };
 
   const saveSettings = (updates) => {
-    const newConfig = setConfig(updates);
+    setConfig(updates);
     if (updates.reminderHours !== undefined) {
       scheduleReminder();
     }
-    showToast('ذخیره شد');
+    showToast('Saved');
   };
 
   const handleReset = () => {
     localStorage.removeItem('cigi_smoking_logs');
     localStorage.removeItem('cigi_user_config');
     setShowReset(false);
-    showToast('تمام اطلاعات پاک شد');
+    showToast('All data cleared');
     setTimeout(() => window.location.reload(), 1000);
   };
 
@@ -51,7 +51,7 @@ export default function SettingsPage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="page-title">تنظیمات</h1>
+        <h1 className="page-title">Settings</h1>
       </motion.div>
 
       <motion.div
@@ -60,14 +60,14 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="setting-group-title">یادآوری</div>
+        <div className="setting-group-title">Reminders</div>
         <div className="setting-item">
           <div className="setting-info">
             <div className="setting-label">
-              <Clock size={16} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 6, color: 'var(--accent)' }} />
-              فاصله یادآوری
+              <Clock size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--accent-light)' }} />
+              Reminder Interval
             </div>
-            <div className="setting-desc">هر چند ساعت یادآوری بده</div>
+            <div className="setting-desc">How often to remind you</div>
           </div>
           <div className="setting-value">
             <button
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             >
               -
             </button>
-            <span className="counter-value">{reminderHours}</span>
+            <span className="counter-value">{reminderHours}h</span>
             <button
               className="counter-btn"
               onClick={() => {
@@ -101,14 +101,14 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
-        <div className="setting-group-title">هدف گذاری</div>
+        <div className="setting-group-title">Goal</div>
         <div className="setting-item">
           <div className="setting-info">
             <div className="setting-label">
-              <Target size={16} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 6, color: 'var(--success)' }} />
-              هدف روزانه
+              <Target size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--success)' }} />
+              Daily Goal
             </div>
-            <div className="setting-desc">حداکثر سیگار در روز (0 = بدون محدودیت)</div>
+            <div className="setting-desc">Max cigarettes per day (0 = no limit)</div>
           </div>
           <div className="setting-value">
             <button
@@ -142,14 +142,14 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="setting-group-title">هزینه</div>
+        <div className="setting-group-title">Cost</div>
         <div className="setting-item">
           <div className="setting-info">
             <div className="setting-label">
-              <DollarSign size={16} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 6, color: 'var(--warning)' }} />
-              قیمت هر پاکت
+              <DollarSign size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--warning)' }} />
+              Price Per Pack
             </div>
-            <div className="setting-desc">قیمت به تومان</div>
+            <div className="setting-desc">In your local currency</div>
           </div>
           <div className="setting-value">
             <button
@@ -180,8 +180,8 @@ export default function SettingsPage() {
         <div className="setting-item">
           <div className="setting-info">
             <div className="setting-label">
-              <Cigarette size={16} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 6, color: 'var(--accent)' }} />
-              تعداد در پاکت
+              <Cigarette size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--accent-light)' }} />
+              Cigarettes Per Pack
             </div>
           </div>
           <div className="setting-value">
@@ -216,21 +216,21 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
       >
-        <div className="setting-group-title">مدیریت داده</div>
+        <div className="setting-group-title">Data</div>
         {!showReset ? (
           <button className="btn btn-danger" onClick={() => setShowReset(true)}>
             <RotateCcw size={18} />
-            پاک کردن تمام اطلاعات
+            Reset All Data
           </button>
         ) : (
           <div className="card" style={{ borderColor: 'var(--danger)' }}>
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>⚠️</div>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
-                مطمئنی؟
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
+                Are you sure?
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                تمام لاگ‌ها و تنظیمات پاک می‌شوند
+                All logs and settings will be permanently deleted
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                 style={{ flex: 1 }}
                 onClick={handleReset}
               >
-                بله، پاک کن
+                Yes, Reset
               </button>
               <button
                 className="btn"
@@ -251,7 +251,7 @@ export default function SettingsPage() {
                 }}
                 onClick={() => setShowReset(false)}
               >
-                لغو
+                Cancel
               </button>
             </div>
           </div>
@@ -259,13 +259,13 @@ export default function SettingsPage() {
       </motion.div>
 
       <motion.div
-        style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)', fontSize: 12 }}
+        style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <Info size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 4 }} />
-        سیگی v1.0 — همراه ترک سیگار
+        <Info size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+        Cigi v1.0 — Your quit companion
       </motion.div>
     </div>
   );

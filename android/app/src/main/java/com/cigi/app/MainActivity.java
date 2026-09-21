@@ -1,4 +1,4 @@
-package com.cigi.smokingcessation;
+package com.cigi.app;
 
 import com.getcapacitor.BridgeActivity;
 

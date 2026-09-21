@@ -23,10 +23,8 @@ export default function StatsPage() {
   const avgPerDay = (totalCigarettes / daysSince).toFixed(1);
 
   const trend = todayCount - yesterdayCount;
-  const trendIcon = trend < 0 ? TrendingDown : trend > 0 ? TrendingUp : Target;
-  const TrendIcon = trendIcon;
 
-  const totalSpent = (totalCigarettes * config.pricePerPack) / config.cigarettesPerPack;
+  const totalSpent = Math.round((totalCigarettes * config.pricePerPack) / config.cigarettesPerPack);
 
   const last7 = weeklyData.slice(-7);
   const weeklyAvg = (last7.reduce((s, d) => s + d.count, 0) / 7).toFixed(1);
@@ -40,7 +38,7 @@ export default function StatsPage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="page-title">آمار و گزارش</h1>
+        <h1 className="page-title">Statistics</h1>
       </motion.div>
 
       <motion.div
@@ -51,16 +49,16 @@ export default function StatsPage() {
       >
         <div className="stat-box">
           <div className="stat-value">{totalCigarettes}</div>
-          <div className="stat-label">کل سیگارها</div>
+          <div className="stat-label">Total</div>
         </div>
         <div className="stat-box">
           <div className="stat-value" style={{ color: trend <= 0 ? 'var(--success)' : 'var(--danger)' }}>
             {todayCount}
           </div>
           <div className="stat-label">
-            امروز
+            Today
             {trend !== 0 && (
-              <span style={{ marginRight: 4, color: trend < 0 ? 'var(--success)' : 'var(--danger)' }}>
+              <span style={{ marginLeft: 4, color: trend < 0 ? 'var(--success)' : 'var(--danger)' }}>
                 {trend > 0 ? '+' : ''}{trend}
               </span>
             )}
@@ -78,14 +76,14 @@ export default function StatsPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <DollarSign size={16} style={{ color: 'var(--warning)' }} />
             <div className="stat-value" style={{ fontSize: 20, color: 'var(--warning)' }}>
-              {totalSpent.toLocaleString('fa-IR')}
+              {totalSpent.toLocaleString('en-US')}
             </div>
           </div>
-          <div className="stat-label">تومان خرج شده</div>
+          <div className="stat-label">Spent</div>
         </div>
         <div className="stat-box">
           <div className="stat-value" style={{ color: 'var(--success)' }}>{avgPerDay}</div>
-          <div className="stat-label">میانگین روزانه</div>
+          <div className="stat-label">Daily Avg</div>
         </div>
       </motion.div>
 
@@ -102,13 +100,14 @@ export default function StatsPage() {
               flex: 1,
               padding: '10px 12px',
               fontSize: 13,
+              fontWeight: 600,
               background: view === 'weekly' ? 'var(--accent)' : 'var(--bg-secondary)',
-              color: view === 'weekly' ? 'var(--bg-primary)' : 'var(--text-secondary)',
+              color: view === 'weekly' ? 'white' : 'var(--text-secondary)',
               border: '1px solid ' + (view === 'weekly' ? 'var(--accent)' : 'var(--border)'),
             }}
             onClick={() => setView('weekly')}
           >
-            هفتگی
+            Weekly
           </button>
           <button
             className="btn"
@@ -116,13 +115,14 @@ export default function StatsPage() {
               flex: 1,
               padding: '10px 12px',
               fontSize: 13,
+              fontWeight: 600,
               background: view === 'monthly' ? 'var(--accent)' : 'var(--bg-secondary)',
-              color: view === 'monthly' ? 'var(--bg-primary)' : 'var(--text-secondary)',
+              color: view === 'monthly' ? 'white' : 'var(--text-secondary)',
               border: '1px solid ' + (view === 'monthly' ? 'var(--accent)' : 'var(--border)'),
             }}
             onClick={() => setView('monthly')}
           >
-            ماهانه
+            Monthly
           </button>
         </div>
 
@@ -162,35 +162,35 @@ export default function StatsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-          خلاصه عملکرد
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          Performance Summary
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-              <Calendar size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 6 }} />
-              روزهای فعال
+            <span style={{ color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>
+              <Calendar size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+              Active Days
             </span>
-            <span style={{ fontWeight: 700, color: 'var(--accent)' }}>{daysSince} روز</span>
+            <span style={{ fontWeight: 700, color: 'var(--accent-light)' }}>{daysSince} days</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-              <Cigarette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 6 }} />
-              میانگین هفتگی
+            <span style={{ color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>
+              <Cigarette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+              Weekly Average
             </span>
-            <span style={{ fontWeight: 700, color: 'var(--accent)' }}>{weeklyAvg}</span>
+            <span style={{ fontWeight: 700, color: 'var(--accent-light)' }}>{weeklyAvg}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--success)', fontSize: 14 }}>
-              🎯 بهترین روز
+            <span style={{ color: 'var(--success)', fontSize: 14, fontWeight: 500 }}>
+              🎯 Best Day
             </span>
-            <span style={{ fontWeight: 700, color: 'var(--success)' }}>{bestDay} سیگار</span>
+            <span style={{ fontWeight: 700, color: 'var(--success)' }}>{bestDay} cigs</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--danger)', fontSize: 14 }}>
-              ⚠️ بدترین روز
+            <span style={{ color: 'var(--danger)', fontSize: 14, fontWeight: 500 }}>
+              ⚠️ Worst Day
             </span>
-            <span style={{ fontWeight: 700, color: 'var(--danger)' }}>{worstDay} سیگار</span>
+            <span style={{ fontWeight: 700, color: 'var(--danger)' }}>{worstDay} cigs</span>
           </div>
         </div>
       </motion.div>

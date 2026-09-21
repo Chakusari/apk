@@ -2,20 +2,25 @@ import { getConfig, getLastLog } from './storage';
 
 let reminderTimeout = null;
 
-export async function requestNotificationPermission() {
-  if ('Notification' in window) {
-    const result = await Notification.requestPermission();
-    return result === 'granted';
+export function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    return Promise.resolve(false);
   }
-  return false;
+  if (Notification.permission === 'granted') {
+    return Promise.resolve(true);
+  }
+  if (Notification.permission === 'denied') {
+    return Promise.resolve(false);
+  }
+  return Notification.requestPermission();
 }
 
 export function sendNotification(title, body, options = {}) {
   if ('Notification' in window && Notification.permission === 'granted') {
     const notif = new Notification(title, {
       body,
-      icon: '/favicon.svg',
-      badge: '/favicon.svg',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
       vibrate: [200, 100, 200],
       tag: 'cigi-reminder',
       renotify: true,
@@ -44,16 +49,16 @@ export function scheduleReminder() {
 
   if (delay === 0) {
     sendNotification(
-      'زمان آزاده! 🔔',
-      'اگه هنوز نکشیدی، دمت گرم! بهتره ادامه بدی.'
+      "Time's up!",
+      "You haven't smoked. Keep it up!"
     );
     return;
   }
 
   reminderTimeout = setTimeout(() => {
     sendNotification(
-      'زمان آزاده! 🔔',
-      `${config.reminderHours} ساعت از آخرین سیگارت گذشت. اگه نکشیدی، آفرین!`
+      "Time's up!",
+      `${config.reminderHours}h since your last cigarette. Great job!`
     );
   }, delay);
 }
