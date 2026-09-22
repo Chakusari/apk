@@ -440,6 +440,17 @@
   transform: scale(0.98);
 }
 
+.theme-btn {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.theme-btn:active {
+  transform: scale(0.96);
+}
+
 /* Toast */
 .toast {
   position: fixed;

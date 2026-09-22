@@ -140,3 +140,286 @@ input, button, textarea {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+/* ============================================
+   RETRO / TERMINAL / PIXEL THEME
+   ============================================ */
+[data-theme='retro'] {
+  --bg-primary: #04070a;
+  --bg-secondary: #0a1210;
+  --bg-card: #0a1310;
+  --bg-card-hover: #101d17;
+  --accent: #00ff41;
+  --accent-light: #7dffb0;
+  --accent-dim: #00cc33;
+  --accent-glow: rgba(0, 255, 65, 0.1);
+  --accent-glow-strong: rgba(0, 255, 65, 0.24);
+  --danger: #ff2d55;
+  --danger-dim: #cc0033;
+  --success: #00ff41;
+  --success-dim: #00cc33;
+  --warning: #ffb000;
+  --text-primary: #d7ffd7;
+  --text-secondary: #86e0a0;
+  --text-muted: #3f7a55;
+  --border: rgba(0, 255, 65, 0.16);
+  --border-light: rgba(0, 255, 65, 0.28);
+  --radius: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
+  --radius-full: 0px;
+  --shadow: 0 4px 0 rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 8px 0 rgba(0, 0, 0, 0.55);
+  --font-display: 'Press Start 2P', 'Courier New', monospace;
+  --font-body: 'VT323', 'Courier New', monospace;
+}
+
+[data-theme='retro'] body {
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+/* CRT scanlines + vignette overlay */
+[data-theme='retro'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 120% at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+[data-theme='retro'] ::selection {
+  background: var(--accent);
+  color: #041a0b;
+}
+
+/* Pixel cigarette only shows in retro theme */
+.smoke-btn-pixel {
+  display: none;
+}
+
+[data-theme='retro'] .smoke-btn-emoji {
+  display: none;
+}
+
+[data-theme='retro'] .smoke-btn-pixel {
+  display: flex;
+  filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.35));
+}
+
+/* Display font (pixel) assignments */
+[data-theme='retro'] .page-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: 0;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: var(--accent-light);
+  color: var(--accent-light);
+  text-shadow: 0 0 14px var(--accent-glow-strong), 0 0 4px var(--accent-glow);
+}
+
+[data-theme='retro'] .nav-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .stat-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .timer-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .setting-group-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .bar-value {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 8px;
+}
+
+[data-theme='retro'] .bar-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 7px;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .counter-value {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Body (terminal) font assignments */
+[data-theme='retro'] .stat-value {
+  font-family: var(--font-body);
+  font-size: 32px;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+[data-theme='retro'] .timer-number {
+  font-family: var(--font-body);
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .setting-label {
+  font-family: var(--font-body);
+  font-size: 17px;
+}
+
+[data-theme='retro'] .setting-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+[data-theme='retro'] .log-time {
+  font-family: var(--font-body);
+  font-size: 17px;
+}
+
+[data-theme='retro'] .log-date {
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+/* Buttons: blocky with hard shadow */
+[data-theme='retro'] .btn {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0;
+  border-radius: 0;
+  border: 2px solid var(--border-light);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='retro'] .btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='retro'] .btn-danger {
+  border-color: rgba(255, 45, 85, 0.35);
+}
+
+[data-theme='retro'] .counter-btn {
+  border-radius: 0;
+  border: 2px solid var(--border-light);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 14px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='retro'] .counter-btn:active {
+  border-color: var(--accent);
+  background: var(--accent);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='retro'] .theme-btn {
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+[data-theme='retro'] .notification-banner-btn {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 9px;
+  border-radius: 0;
+  border: 2px solid var(--accent);
+  background: var(--accent-dim);
+}
+
+/* Main smoke button: square CRT style */
+[data-theme='retro'] .smoke-btn {
+  border-radius: 14px;
+  border: 3px solid var(--accent);
+  background: linear-gradient(145deg, #02140a, #04200f);
+  color: var(--accent-light);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.55), 0 0 26px var(--accent-glow-strong);
+  animation: none;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 11px;
+}
+
+[data-theme='retro'] .smoke-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.55), 0 0 26px var(--accent-glow-strong);
+}
+
+/* Cards, boxes, nav, banner: crisp square frames */
+[data-theme='retro'] .bottom-nav {
+  background: rgba(4, 8, 10, 0.94);
+  border-top: 2px solid var(--border-light);
+}
+
+[data-theme='retro'] .card,
+[data-theme='retro'] .stat-box,
+[data-theme='retro'] .setting-item {
+  border: 1px solid var(--border-light);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='retro'] .notification-banner {
+  background: #0a1310;
+  border: 1px solid var(--border-light);
+}
+
+[data-theme='retro'] .next-reminder {
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+[data-theme='retro'] .toast {
+  border-radius: 0;
+  border: 2px solid var(--border-light);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='retro'] .bar {
+  border-radius: 2px 2px 0 0;
+}
+
+[data-theme='retro'] .bar.today {
+  box-shadow: 0 0 6px var(--accent-glow-strong);
+}
+
+[data-theme='retro'] ::-webkit-scrollbar-thumb {
+  background: var(--accent-dim);
+  background-clip: content-box;
+}
+
+[data-theme='retro'] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: content-box;
+}

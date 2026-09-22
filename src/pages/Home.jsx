@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Bell, BellOff, Trash2, Clock } from 'lucide-react';
 import { addLog, deleteLastLog, getTodayLogs, getConfig, setConfig } from '../utils/storage';
 import { scheduleReminder, clearReminder, getTimeSinceLastSmoke, requestNotificationPermission, getNextReminderTime, arePermissionsGranted } from '../utils/notifications';
+import PixelCigarette from '../components/PixelCigarette';
 
 export default function HomePage() {
   const [todayCount, setTodayCount] = useState(0);
@@ -264,6 +265,9 @@ export default function HomePage() {
             />
           ))}
           <span className="smoke-btn-emoji">🚬</span>
+          <span className="smoke-btn-pixel">
+            <PixelCigarette size={58} />
+          </span>
           <span>Log Cigarette</span>
         </button>
       </motion.div>

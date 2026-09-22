@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Cigarette, DollarSign, RotateCcw, Info, Target } from 'lucide-react';
-import { getConfig, setConfig } from '../utils/storage';
+import { Clock, Cigarette, DollarSign, RotateCcw, Info, Target, Palette } from 'lucide-react';
+import { getConfig, setConfig, getSettings, setSettings } from '../utils/storage';
 import { scheduleReminder } from '../utils/notifications';
+import { applyTheme, getTheme, THEME_DARK, THEME_RETRO } from '../utils/theme';
 
 export default function SettingsPage() {
   const config = useMemo(() => getConfig(), []);
@@ -10,12 +11,19 @@ export default function SettingsPage() {
   const [dailyGoal, setDailyGoal] = useState(config.dailyGoal);
   const [pricePerPack, setPricePerPack] = useState(config.pricePerPack);
   const [cigsPerPack, setCigsPerPack] = useState(config.cigarettesPerPack);
+  const [theme, setTheme] = useState(getTheme());
   const [toast, setToast] = useState(null);
   const [showReset, setShowReset] = useState(false);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 2500);
+  };
+
+  const changeTheme = (t) => {
+    setSettings({ ...getSettings(), theme: t });
+    setTheme(t);
+    applyTheme(t);
   };
 
   const saveSettings = (updates) => {
@@ -52,6 +60,54 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <h1 className="page-title">Settings</h1>
+      </motion.div>
+
+      <motion.div
+        className="setting-group"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <div className="setting-group-title">Theme</div>
+        <div className="setting-item">
+          <div className="setting-info">
+            <div className="setting-label">
+              <Palette size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--accent-light)' }} />
+              App Theme
+            </div>
+            <div className="setting-desc">Choose your look</div>
+          </div>
+          <div className="setting-value" style={{ gap: 8 }}>
+            <button
+              className="theme-btn"
+              style={{
+                padding: '9px 14px',
+                fontSize: 12,
+                fontWeight: 700,
+                background: theme === THEME_DARK ? 'var(--accent)' : 'var(--bg-secondary)',
+                color: theme === THEME_DARK ? 'white' : 'var(--text-secondary)',
+                border: '1px solid ' + (theme === THEME_DARK ? 'var(--accent)' : 'var(--border)'),
+              }}
+              onClick={() => changeTheme(THEME_DARK)}
+            >
+              Dark
+            </button>
+            <button
+              className="theme-btn"
+              style={{
+                padding: '9px 14px',
+                fontSize: 12,
+                fontWeight: 700,
+                background: theme === THEME_RETRO ? 'var(--accent)' : 'var(--bg-secondary)',
+                color: theme === THEME_RETRO ? 'white' : 'var(--text-secondary)',
+                border: '1px solid ' + (theme === THEME_RETRO ? 'var(--accent)' : 'var(--border)'),
+              }}
+              onClick={() => changeTheme(THEME_RETRO)}
+            >
+              Retro
+            </button>
+          </div>
+        </div>
       </motion.div>
 
       <motion.div
