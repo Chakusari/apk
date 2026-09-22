@@ -1,9 +1,18 @@
-name: Build Android APK
+name: Build Android App
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
 
 jobs:
   build:
@@ -29,7 +38,9 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install Android platform
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+        run: |
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          yes | sdkmanager --licenses
 
       - name: Install dependencies
         run: npm ci
@@ -37,15 +48,74 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Setup Capacitor
+      - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build APK
-        run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+      - name: Generate version code
+        id: version
+        run: |
+          VERSION_NAME=$(node -p "require('./package.json').version")
+          VERSION_CODE=$(date +%Y%m%d%H%M)
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
 
-      - name: Upload APK
+      - name: Update Android version
+        run: |
+          cd android
+          sed -i "s/versionCode 1/versionCode ${{ steps.version.outputs.version_code }}/" app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"${{ steps.version.outputs.version_name }}\"/" app/build.gradle
+
+      - name: Build Debug APK
+        if: github.event.inputs.build_type == 'debug' || github.event_name == 'push'
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Build Release AAB
+        if: github.event.inputs.build_type == 'release'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::warning::Keystore secrets not configured. Building unsigned AAB for testing only."
+            cd android && chmod +x gradlew && ./gradlew bundleRelease
+          else
+            echo "$KEYSTORE_BASE64" | base64 -d > android/app/keystore.jks
+            cd android
+            cat > signing.properties <<EOF
+            storeFile=keystore.jks
+            storePassword=$KEYSTORE_PASSWORD
+            keyAlias=$KEY_ALIAS
+            keyPassword=$KEY_PASSWORD
+            EOF
+            chmod +x gradlew
+            ./gradlew bundleRelease
+          fi
+
+      - name: Upload Debug APK
+        if: github.event.inputs.build_type == 'debug' || github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: cigi-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Upload Release AAB
+        if: github.event.inputs.build_type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cigi-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Upload Release APK (unsigned)
+        if: github.event.inputs.build_type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cigi-release-apk-unsigned
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: warn
