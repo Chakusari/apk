@@ -1,27 +1,47 @@
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { getConfig, getLastLog } from './storage';
 
-let reminderTimeout = null;
-let isCapacitor = false;
-let LocalNotifications = null;
+const REMINDER_ID = 1;
+const isNative = Capacitor.isNativePlatform();
 
-// Initialize Capacitor detection
-try {
-  const capacitor = require('@capacitor/core');
-  if (capacitor.Capacitor.isNativePlatform()) {
-    isCapacitor = true;
-    const ln = require('@capacitor/local-notifications');
-    LocalNotifications = ln.LocalNotifications;
+let reminderTimeout = null;
+let instantIdCounter = 100;
+
+function nextInstantId() {
+  return instantIdCounter++;
+}
+
+function reminderTitle() {
+  return "Time's up!";
+}
+
+export async function arePermissionsGranted() {
+  if (isNative) {
+    try {
+      const perm = await LocalNotifications.checkPermissions();
+      return perm.display === 'granted';
+    } catch {
+      return false;
+    }
   }
-} catch {
-  // Not in Capacitor environment
+  return 'Notification' in window && Notification.permission === 'granted';
+}
+
+export async function isReminderEnabled() {
+  return getConfig().remindersEnabled === true && (await arePermissionsGranted());
 }
 
 export async function requestNotificationPermission() {
-  if (isCapacitor && LocalNotifications) {
-    const perm = await LocalNotifications.requestPermissions();
-    return perm.display === 'granted';
+  if (isNative) {
+    try {
+      const perm = await LocalNotifications.requestPermissions();
+      return perm.display === 'granted';
+    } catch {
+      return false;
+    }
   }
-  
+
   // Web fallback
   if (!('Notification' in window)) {
     return false;
@@ -35,22 +55,31 @@ export async function requestNotificationPermission() {
   return Notification.requestPermission();
 }
 
-export async function sendNotification(title, body, options = {}) {
-  if (isCapacitor && LocalNotifications) {
-    await LocalNotifications.schedule({
-      notifications: [{
-        id: Date.now(),
+async function scheduleNative(id, title, body, at) {
+  await LocalNotifications.schedule({
+    notifications: [
+      {
+        id,
         title,
         body,
+        schedule: { at, allowWhileIdle: true },
+        isExactNotification: false,
         iconColor: '#6366f1',
         smallIcon: 'ic_stat_icon',
         sound: 'default',
-        ...options,
-      }]
-    });
+        autoCancel: true,
+        foreground: true,
+      },
+    ],
+  });
+}
+
+async function sendNotification(title, body, options = {}) {
+  if (isNative) {
+    await scheduleNative(nextInstantId(), title, body, new Date(Date.now() + 1000));
     return;
   }
-  
+
   // Web fallback
   if ('Notification' in window && Notification.permission === 'granted') {
     const notif = new Notification(title, {
@@ -69,37 +98,49 @@ export async function sendNotification(title, body, options = {}) {
   }
 }
 
-export function scheduleReminder() {
+export async function scheduleReminder() {
   clearReminder();
 
   const config = getConfig();
-  const lastLog = getLastLog();
+  if (config.remindersEnabled !== true) return;
 
+  const lastLog = getLastLog();
   if (!lastLog) return;
 
   const lastTime = new Date(lastLog.timestamp);
   const intervalMs = config.reminderHours * 60 * 60 * 1000;
-  const nextReminder = lastTime.getTime() + intervalMs;
-  const now = Date.now();
-  const delay = Math.max(0, nextReminder - now);
+  const nextReminder = new Date(lastTime.getTime() + intervalMs);
+  const delay = nextReminder.getTime() - Date.now();
 
-  if (delay === 0) {
-    sendNotification(
-      "Time's up!",
-      "You haven't smoked. Keep it up!"
-    );
+  const body =
+    delay <= 0
+      ? "You haven't smoked. Keep it up!"
+      : `${config.reminderHours}h since your last cigarette. Great job!`;
+
+  if (isNative) {
+    const at = delay <= 0 ? new Date(Date.now() + 1000) : nextReminder;
+    await scheduleNative(REMINDER_ID, reminderTitle(), body, at);
+    return;
+  }
+
+  if (delay <= 0) {
+    sendNotification(reminderTitle(), body);
     return;
   }
 
   reminderTimeout = setTimeout(() => {
-    sendNotification(
-      "Time's up!",
-      `${config.reminderHours}h since your last cigarette. Great job!`
-    );
+    sendNotification(reminderTitle(), body);
   }, delay);
 }
 
-export function clearReminder() {
+export async function clearReminder() {
+  if (isNative) {
+    try {
+      await LocalNotifications.cancel({ notifications: [{ id: REMINDER_ID }] });
+    } catch {
+      // No pending reminder to cancel
+    }
+  }
   if (reminderTimeout) {
     clearTimeout(reminderTimeout);
     reminderTimeout = null;

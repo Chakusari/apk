@@ -10,6 +10,7 @@ const DEFAULT_CONFIG = {
   pricePerPack: 50000,
   cigarettesPerPack: 20,
   startDate: new Date().toISOString(),
+  remindersEnabled: false,
 };
 
 export function getLogs() {

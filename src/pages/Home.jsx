@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, BellOff, Trash2, Clock } from 'lucide-react';
-import { addLog, deleteLastLog, getTodayLogs, getConfig } from '../utils/storage';
-import { scheduleReminder, clearReminder, getTimeSinceLastSmoke, requestNotificationPermission, getNextReminderTime } from '../utils/notifications';
+import { addLog, deleteLastLog, getTodayLogs, getConfig, setConfig } from '../utils/storage';
+import { scheduleReminder, clearReminder, getTimeSinceLastSmoke, requestNotificationPermission, getNextReminderTime, arePermissionsGranted } from '../utils/notifications';
 
 export default function HomePage() {
   const [todayCount, setTodayCount] = useState(0);
@@ -11,15 +11,11 @@ export default function HomePage() {
   const [toast, setToast] = useState(null);
   const [nextReminder, setNextReminder] = useState(null);
   const [ripples, setRipples] = useState([]);
-  const notifRef = useRef(false);
 
   const refresh = useCallback(() => {
     setTodayCount(getTodayLogs().length);
     setTimeSince(getTimeSinceLastSmoke());
     setNextReminder(getNextReminderTime());
-    setNotificationEnabled(
-      'Notification' in window && Notification.permission === 'granted'
-    );
   }, []);
 
   useEffect(() => {
@@ -29,9 +25,31 @@ export default function HomePage() {
   }, [refresh]);
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      notifRef.current = true;
-    }
+    let cancelled = false;
+
+    const syncEnabled = async () => {
+      const config = getConfig();
+      const granted = await arePermissionsGranted();
+      if (!cancelled) {
+        setNotificationEnabled(config.remindersEnabled === true && granted);
+      }
+    };
+
+    const handleResume = () => {
+      if (document.visibilityState === 'visible') {
+        syncEnabled();
+        scheduleReminder();
+      }
+    };
+
+    syncEnabled();
+    scheduleReminder();
+    document.addEventListener('visibilitychange', handleResume);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', handleResume);
+    };
   }, []);
 
   const showToast = (msg, type = 'success') => {
@@ -65,18 +83,23 @@ export default function HomePage() {
     }
   };
 
-  const handleNotificationToggle = () => {
+  const handleNotificationToggle = async () => {
     if (notificationEnabled) {
+      setConfig({ remindersEnabled: false });
+      clearReminder();
       setNotificationEnabled(false);
+      showToast('Reminders disabled');
       return;
     }
-    requestNotificationPermission().then((granted) => {
-      setNotificationEnabled(granted);
-      if (granted) {
-        scheduleReminder();
-        showToast('Reminders enabled');
-      }
-    });
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      setConfig({ remindersEnabled: true });
+      setNotificationEnabled(true);
+      scheduleReminder();
+      showToast('Reminders enabled');
+    } else {
+      showToast('Notification permission denied', 'error');
+    }
   };
 
   const config = getConfig();
