@@ -38,7 +38,6 @@
 html, body, #root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
   overscroll-behavior: none;
 }
 
@@ -50,6 +49,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-text-size-adjust: 100%;
 }
 
 #root {
@@ -58,16 +58,57 @@ body {
   max-width: 480px;
   margin: 0 auto;
   position: relative;
+  height: 100%;
 }
 
+/* Premium scrollbar */
 ::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-glow-strong), var(--accent-glow));
+  border-radius: 3px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent-light), var(--accent));
+  background-clip: content-box;
 }
 
 input, button, textarea {
   font-family: inherit;
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Premium scroll container */
+.scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+/* Smooth momentum scrolling for iOS/Android */
+@supports (-webkit-overflow-scrolling: touch) {
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @keyframes fadeIn {

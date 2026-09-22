@@ -1,21 +1,57 @@
 import { getConfig, getLastLog } from './storage';
 
 let reminderTimeout = null;
+let isCapacitor = false;
+let LocalNotifications = null;
 
-export function requestNotificationPermission() {
+// Initialize Capacitor detection
+try {
+  const capacitor = require('@capacitor/core');
+  if (capacitor.Capacitor.isNativePlatform()) {
+    isCapacitor = true;
+    const ln = require('@capacitor/local-notifications');
+    LocalNotifications = ln.LocalNotifications;
+  }
+} catch {
+  // Not in Capacitor environment
+}
+
+export async function requestNotificationPermission() {
+  if (isCapacitor && LocalNotifications) {
+    const perm = await LocalNotifications.requestPermissions();
+    return perm.display === 'granted';
+  }
+  
+  // Web fallback
   if (!('Notification' in window)) {
-    return Promise.resolve(false);
+    return false;
   }
   if (Notification.permission === 'granted') {
-    return Promise.resolve(true);
+    return true;
   }
   if (Notification.permission === 'denied') {
-    return Promise.resolve(false);
+    return false;
   }
   return Notification.requestPermission();
 }
 
-export function sendNotification(title, body, options = {}) {
+export async function sendNotification(title, body, options = {}) {
+  if (isCapacitor && LocalNotifications) {
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: Date.now(),
+        title,
+        body,
+        iconColor: '#6366f1',
+        smallIcon: 'ic_stat_icon',
+        sound: 'default',
+        ...options,
+      }]
+    });
+    return;
+  }
+  
+  // Web fallback
   if ('Notification' in window && Notification.permission === 'granted') {
     const notif = new Notification(title, {
       body,
