@@ -6,37 +6,6 @@
     "androidScheme": "https"
   },
   "android": {
-    "allowMixedContent": true,
-    "captureInput": true,
-    "webContentsDebuggingEnabled": false,
-    "backgroundColor": "#0a0e1a",
-    "initialFocus": true,
-    "loggingBehavior": "none",
-    "overrideUserAgent": "Cigi/1.0",
-    "appendUserAgent": "Cigi/1.0"
-  },
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 2000,
-      "launchAutoHide": true,
-      "backgroundColor": "#0a0e1a",
-      "androidSplashResourceName": "splash",
-      "androidScaleType": "CENTER_CROP",
-      "showSpinner": false
-    },
-    "StatusBar": {
-      "style": "dark",
-      "backgroundColor": "#0a0e1a",
-      "overlaysWebView": false
-    },
-    "NavigationBar": {
-      "backgroundColor": "#0a0e1a",
-      "dividerColor": "#0a0e1a"
-    },
-    "LocalNotifications": {
-      "smallIcon": "ic_stat_icon",
-      "iconColor": "#6366f1",
-      "sound": "default"
-    }
+    "backgroundColor": "#0a0e1a"
   }
 }
