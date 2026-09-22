@@ -17,6 +17,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -36,11 +37,10 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
-
-      - name: Install Android platform
-        run: |
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
-          yes | sdkmanager --licenses
+        with:
+          api-level: 36
+          ndk-version: r26c
+          build-tools-version: 36.0.0
 
       - name: Install dependencies
         run: npm ci
@@ -70,7 +70,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Build Release AAB
         if: github.event.inputs.build_type == 'release'
@@ -82,7 +82,7 @@ jobs:
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then
             echo "::warning::Keystore secrets not configured. Building unsigned AAB for testing only."
-            cd android && chmod +x gradlew && ./gradlew bundleRelease
+            cd android && chmod +x gradlew && ./gradlew bundleRelease --no-daemon --stacktrace
           else
             echo "$KEYSTORE_BASE64" | base64 -d > android/app/keystore.jks
             cd android
@@ -93,7 +93,7 @@ jobs:
             keyPassword=$KEY_PASSWORD
             EOF
             chmod +x gradlew
-            ./gradlew bundleRelease
+            ./gradlew bundleRelease --no-daemon --stacktrace
           fi
 
       - name: Upload Debug APK
