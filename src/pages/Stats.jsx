@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingDown, TrendingUp, DollarSign, Cigarette, Calendar, Target } from 'lucide-react';
-import { BestDayIcon, WorstDayIcon } from '../components/AppIcons';
+import { TrendingUp } from 'lucide-react';
+import { CalendarIcon, BestDayIcon, WorstDayIcon, DollarIcon } from '../components/AppIcons';
 import { getWeeklyData, getMonthlyData, getLogs, getConfig } from '../utils/storage';
 
 export default function StatsPage() {
@@ -75,7 +75,7 @@ export default function StatsPage() {
       >
         <div className="stat-box">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <DollarSign size={16} style={{ color: 'var(--warning)' }} />
+            <DollarIcon size={16} style={{ color: 'var(--warning)' }} />
             <div className="stat-value" style={{ fontSize: 20, color: 'var(--warning)' }}>
               {totalSpent.toLocaleString('en-US')}
             </div>
@@ -169,14 +169,14 @@ export default function StatsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>
-              <Calendar size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+              <CalendarIcon size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
               Active Days
             </span>
             <span style={{ fontWeight: 700, color: 'var(--accent-light)' }}>{daysSince} days</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>
-              <Cigarette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+              <TrendingUp size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
               Weekly Average
             </span>
             <span style={{ fontWeight: 700, color: 'var(--accent-light)' }}>{weeklyAvg}</span>

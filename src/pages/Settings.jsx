@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Cigarette, DollarSign, RotateCcw, Info, Target, Palette, Eye } from 'lucide-react';
+import { Clock, RotateCcw, Info, Target, Palette, Eye } from 'lucide-react';
 import { getConfig, setConfig, getSettings, setSettings } from '../utils/storage';
 import { scheduleReminder } from '../utils/notifications';
-import { applyTheme, applyPalette, getTheme, THEME_DARK, THEME_RETRO } from '../utils/theme';
-import { WorstDayIcon } from '../components/AppIcons';
+import { applyTheme, applyPalette, getTheme, THEME_DARK, THEME_RETRO, PALETTES } from '../utils/theme';
+import { WorstDayIcon, CigaretteIcon, DollarIcon } from '../components/AppIcons';
 
 export default function SettingsPage() {
   const config = useMemo(() => getConfig(), []);
@@ -127,32 +127,28 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          <div className="setting-info" style={{ marginTop: 14 }}>
+          <div className="setting-info" style={{ marginTop: 16 }}>
             <div className="setting-label">
               <Palette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
               Palette
             </div>
             <div className="setting-desc">Accent color for the current theme</div>
           </div>
-          <div className="setting-value" style={{ flexWrap: 'wrap', gap: 8 }}>
-            {['default', 'emerald', 'crimson', 'amber', 'indigo', 'cyan'].map((p) => {
+          <div className="palette-grid">
+            {PALETTES.map((p) => {
               const selected = palette === p;
               return (
                 <button
                   key={p}
-                  className="palette-swatch"
+                  type="button"
+                  className={`palette-swatch ${selected ? 'selected' : ''}`}
                   data-palette={p}
-                  style={{
-                    width: 40,
-                    height: 32,
-                    borderRadius: 8,
-                    border: selected ? '2px solid var(--text-primary)' : '1px solid var(--border)',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                  }}
                   onClick={() => changePalette(p)}
                   aria-label={p}
-                />
+                  aria-pressed={selected}
+                >
+                  <span className="palette-name">{p}</span>
+                </button>
               );
             })}
           </div>
@@ -285,7 +281,7 @@ export default function SettingsPage() {
         <div className="setting-item">
           <div className="setting-info">
             <div className="setting-label">
-              <DollarSign size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--warning)' }} />
+              <DollarIcon size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--warning)' }} />
               Price Per Pack
             </div>
             <div className="setting-desc">In your local currency</div>
@@ -319,7 +315,7 @@ export default function SettingsPage() {
         <div className="setting-item">
           <div className="setting-info">
             <div className="setting-label">
-              <Cigarette size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--accent-light)' }} />
+              <CigaretteIcon size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--accent-light)' }} />
               Cigarettes Per Pack
             </div>
           </div>

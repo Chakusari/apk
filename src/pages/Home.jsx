@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, BellOff, Trash2, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import { BellIcon, BellOffIcon, TrashIcon } from '../components/AppIcons';
 import { addLog, deleteLastLog, getTodayLogs, setConfig, getSettings } from '../utils/storage';
 import { scheduleReminder, clearReminder, getTimeSinceLastSmoke, requestNotificationPermission, getNextReminderTime, arePermissionsGranted } from '../utils/notifications';
 import { applyTheme, getTheme, applyPalette, getPalette } from '../utils/theme';
@@ -154,7 +155,7 @@ export default function HomePage() {
             transition: 'all 0.2s ease',
           }}
         >
-          {notificationEnabled ? <Bell size={22} /> : <BellOff size={22} />}
+          {notificationEnabled ? <BellIcon size={22} /> : <BellOffIcon size={22} />}
         </button>
       </motion.div>
 
@@ -164,7 +165,7 @@ export default function HomePage() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
         >
-          <Bell size={20} style={{ display: 'inline', verticalAlign: 'middle' }} />
+          <BellIcon size={20} style={{ display: 'inline', verticalAlign: 'middle' }} />
           <span className="notification-banner-text">
             Enable reminders to get notified when it's time to stay smoke-free
           </span>
@@ -249,7 +250,7 @@ export default function HomePage() {
 
           {nextReminder && notificationEnabled && (
             <div className="next-reminder">
-              <Bell size={15} className="next-reminder-icon" />
+              <BellIcon size={15} className="next-reminder-icon" />
               <span className="next-reminder-text">
                 Next reminder at{' '}
                 <span className="next-reminder-time">
@@ -292,7 +293,7 @@ export default function HomePage() {
           transition={{ delay: 0.3 }}
         >
           <button className="btn btn-danger" onClick={handleUndo}>
-            <Trash2 size={18} />
+            <TrashIcon size={20} />
             Undo Last
           </button>
         </motion.div>
