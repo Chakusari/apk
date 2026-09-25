@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, BellOff, Trash2, Clock } from 'lucide-react';
-import { addLog, deleteLastLog, getTodayLogs, getConfig, setConfig } from '../utils/storage';
+import { addLog, deleteLastLog, getTodayLogs, setConfig, getSettings } from '../utils/storage';
 import { scheduleReminder, clearReminder, getTimeSinceLastSmoke, requestNotificationPermission, getNextReminderTime, arePermissionsGranted } from '../utils/notifications';
+import { applyTheme, getTheme, applyPalette, getPalette } from '../utils/theme';
 import PixelCigarette from '../components/PixelCigarette';
+import { CigaretteIcon } from '../components/AppIcons';
 
 export default function HomePage() {
   const [todayCount, setTodayCount] = useState(0);
@@ -51,6 +53,12 @@ export default function HomePage() {
       cancelled = true;
       document.removeEventListener('visibilitychange', handleResume);
     };
+  }, []);
+
+  // Apply active theme + palette on mount and when settings change
+  useEffect(() => {
+    applyTheme(getTheme());
+    applyPalette(getPalette());
   }, []);
 
   const showToast = (msg, type = 'success') => {
@@ -103,7 +111,8 @@ export default function HomePage() {
     }
   };
 
-  const config = getConfig();
+  const settings = getSettings();
+  const hideDailyCount = settings.hideDailyCount === true;
   const hours = timeSince?.hours || 0;
   const minutes = timeSince?.minutes || 0;
   const seconds = timeSince?.seconds || 0;
@@ -155,7 +164,7 @@ export default function HomePage() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
         >
-          <span style={{ fontSize: 20 }}>🔔</span>
+          <Bell size={20} style={{ display: 'inline', verticalAlign: 'middle' }} />
           <span className="notification-banner-text">
             Enable reminders to get notified when it's time to stay smoke-free
           </span>
@@ -174,11 +183,13 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="stat-box">
-          <div className="stat-value">{todayCount}</div>
-          <div className="stat-label">Today</div>
-        </div>
-        <div className="stat-box">
+        {!hideDailyCount && (
+          <div className="stat-box">
+            <div className="stat-value">{todayCount}</div>
+            <div className="stat-label">Today</div>
+          </div>
+        )}
+        <div className="stat-box" style={hideDailyCount ? { gridColumn: '1 / -1' } : undefined}>
           <div className="stat-value" style={{ color: 'var(--success)' }}>
             {timeSince ? `${hours}:${String(minutes).padStart(2, '0')}` : '--:--'}
           </div>
@@ -264,7 +275,9 @@ export default function HomePage() {
               style={{ left: r.x, top: r.y, width: 10, height: 10 }}
             />
           ))}
-          <span className="smoke-btn-emoji">🚬</span>
+          <span className="smoke-btn-cigarette">
+            <CigaretteIcon size={44} />
+          </span>
           <span className="smoke-btn-pixel">
             <PixelCigarette size={58} />
           </span>
@@ -285,50 +298,7 @@ export default function HomePage() {
         </motion.div>
       )}
 
-      {todayCount > 0 && (
-        <motion.div
-          className="card"
-          style={{ marginTop: 16 }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-        >
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, textAlign: 'center', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Today's Log
-          </div>
-          <div className="log-list">
-            {getTodayLogs()
-              .slice()
-              .reverse()
-              .map((log, i) => {
-                const t = new Date(log.timestamp);
-                return (
-                  <div key={log.id} className="log-item">
-                    <div>
-                      <div className="log-time">
-                        {t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                      {i > 0 && (
-                        <div className="log-date">
-                          {(() => {
-                            const prev = getTodayLogs().slice().reverse();
-                            if (prev[i - 1]) {
-                              const diff = new Date(log.timestamp) - new Date(prev[i - 1].timestamp);
-                              const h = Math.floor(diff / 3600000);
-                              const m = Math.floor((diff % 3600000) / 60000);
-                              return h > 0 ? `${h}h ${m}m ago` : `${m}m ago`;
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </motion.div>
-      )}
+      {/* Today's Log removed per user request */}
     </div>
   );
 }

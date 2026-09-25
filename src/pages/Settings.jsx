@@ -1,17 +1,21 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Cigarette, DollarSign, RotateCcw, Info, Target, Palette } from 'lucide-react';
+import { Clock, Cigarette, DollarSign, RotateCcw, Info, Target, Palette, Eye } from 'lucide-react';
 import { getConfig, setConfig, getSettings, setSettings } from '../utils/storage';
 import { scheduleReminder } from '../utils/notifications';
-import { applyTheme, getTheme, THEME_DARK, THEME_RETRO } from '../utils/theme';
+import { applyTheme, applyPalette, getTheme, THEME_DARK, THEME_RETRO } from '../utils/theme';
+import { WorstDayIcon } from '../components/AppIcons';
 
 export default function SettingsPage() {
   const config = useMemo(() => getConfig(), []);
+  const settings = useMemo(() => getSettings(), []);
   const [reminderHours, setReminderHours] = useState(config.reminderHours);
   const [dailyGoal, setDailyGoal] = useState(config.dailyGoal);
   const [pricePerPack, setPricePerPack] = useState(config.pricePerPack);
   const [cigsPerPack, setCigsPerPack] = useState(config.cigarettesPerPack);
   const [theme, setTheme] = useState(getTheme());
+  const [palette, setPalette] = useState(settings.palette);
+  const [hideDailyCount, setHideDailyCount] = useState(settings.hideDailyCount);
   const [toast, setToast] = useState(null);
   const [showReset, setShowReset] = useState(false);
 
@@ -21,9 +25,24 @@ export default function SettingsPage() {
   };
 
   const changeTheme = (t) => {
-    setSettings({ ...getSettings(), theme: t });
+    setSettings({ theme: t });
     setTheme(t);
     applyTheme(t);
+    showToast('Saved');
+  };
+
+  const changePalette = (p) => {
+    setSettings({ palette: p });
+    setPalette(p);
+    applyPalette(p);
+    showToast('Saved');
+  };
+
+  const toggleHideCount = () => {
+    const v = !hideDailyCount;
+    setSettings({ hideDailyCount: v });
+    setHideDailyCount(v);
+    showToast('Saved');
   };
 
   const saveSettings = (updates) => {
@@ -105,6 +124,70 @@ export default function SettingsPage() {
               onClick={() => changeTheme(THEME_RETRO)}
             >
               Retro
+            </button>
+          </div>
+
+          <div className="setting-info" style={{ marginTop: 14 }}>
+            <div className="setting-label">
+              <Palette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+              Palette
+            </div>
+            <div className="setting-desc">Accent color for the current theme</div>
+          </div>
+          <div className="setting-value" style={{ flexWrap: 'wrap', gap: 8 }}>
+            {['default', 'emerald', 'crimson', 'amber', 'indigo', 'cyan'].map((p) => {
+              const selected = palette === p;
+              return (
+                <button
+                  key={p}
+                  className="palette-swatch"
+                  data-palette={p}
+                  style={{
+                    width: 40,
+                    height: 32,
+                    borderRadius: 8,
+                    border: selected ? '2px solid var(--text-primary)' : '1px solid var(--border)',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                  onClick={() => changePalette(p)}
+                  aria-label={p}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="setting-group"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+      >
+        <div className="setting-group-title">Display</div>
+        <div className="setting-item">
+          <div className="setting-info">
+            <div className="setting-label">
+              <Eye size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+              Daily Cigarette Count
+            </div>
+            <div className="setting-desc">Show today's count on the Home screen</div>
+          </div>
+          <div className="setting-value">
+            <button
+              className="theme-btn"
+              style={{
+                padding: '9px 16px',
+                fontSize: 12,
+                fontWeight: 700,
+                background: hideDailyCount ? 'var(--bg-secondary)' : 'var(--accent)',
+                color: hideDailyCount ? 'var(--text-secondary)' : 'white',
+                border: '1px solid ' + (hideDailyCount ? 'var(--border)' : 'var(--accent)'),
+              }}
+              onClick={toggleHideCount}
+            >
+              {hideDailyCount ? 'Hidden' : 'Visible'}
             </button>
           </div>
         </div>
@@ -281,7 +364,7 @@ export default function SettingsPage() {
         ) : (
           <div className="card" style={{ borderColor: 'var(--danger)' }}>
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>⚠️</div>
+              <div style={{ fontSize: 32, marginBottom: 8 }}><WorstDayIcon size={32} color="var(--danger)" /></div>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
                 Are you sure?
               </div>

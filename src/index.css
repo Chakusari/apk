@@ -61,22 +61,31 @@ body {
   height: 100%;
 }
 
-/* Premium scrollbar */
+/* Premium scrollbar - hidden but still scrollable */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent-glow-strong), var(--accent-glow));
-  border-radius: 3px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+  background: transparent;
+  border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--accent-light), var(--accent));
-  background-clip: content-box;
+  background: transparent;
+}
+
+html, body {
+  -ms-overflow-style: hidden;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 input, button, textarea {
@@ -196,12 +205,16 @@ input, button, textarea {
   color: #041a0b;
 }
 
-/* Pixel cigarette only shows in retro theme */
+/* Pixel cigarette only shows in retro theme; clean icon shows in dark theme */
 .smoke-btn-pixel {
   display: none;
 }
 
 [data-theme='retro'] .smoke-btn-emoji {
+  display: none;
+}
+
+[data-theme='retro'] .smoke-btn-cigarette {
   display: none;
 }
 
@@ -422,4 +435,73 @@ input, button, textarea {
 [data-theme='retro'] ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
   background-clip: content-box;
+}
+
+/* ============================================
+   Accent Palettes (applied on top of either theme)
+   ============================================ */
+[data-palette='emerald'] {
+  --accent: #00c9a2;
+  --accent-light: #4cedc4;
+  --accent-dim: #00a183;
+  --accent-glow: rgba(0, 201, 162, 0.1);
+  --accent-glow-strong: rgba(0, 201, 162, 0.28);
+}
+
+[data-palette='crimson'] {
+  --accent: #ff4d6d;
+  --accent-light: #ff8da0;
+  --accent-dim: #cc3e58;
+  --accent-glow: rgba(255, 77, 109, 0.1);
+  --accent-glow-strong: rgba(255, 77, 109, 0.3);
+}
+
+[data-palette='amber'] {
+  --accent: #ff9e3a;
+  --accent-light: #ffcc7a;
+  --accent-dim: #cc7d22;
+  --accent-glow: rgba(255, 158, 58, 0.1);
+  --accent-glow-strong: rgba(255, 158, 58, 0.3);
+}
+
+[data-palette='indigo'] {
+  --accent: #635bff;
+  --accent-light: #9b90ff;
+  --accent-dim: #5044e0;
+  --accent-glow: rgba(99, 91, 255, 0.1);
+  --accent-glow-strong: rgba(99, 91, 255, 0.3);
+}
+
+[data-palette='cyan'] {
+  --accent: #00b4d8;
+  --accent-light: #4cd9f0;
+  --accent-dim: #008bc1;
+  --accent-glow: rgba(0, 180, 216, 0.1);
+  --accent-glow-strong: rgba(0, 180, 216, 0.3);
+}
+
+/* Palette swatches */
+.palette-swatch {
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.palette-swatch[data-palette='default'] {
+  background: linear-gradient(135deg, var(--text-secondary), var(--accent-dim));
+}
+
+.palette-swatch[data-palette='crimson'] {
+  background: linear-gradient(135deg, #ff8da0, #cc3e58);
+}
+
+.palette-swatch[data-palette='amber'] {
+  background: linear-gradient(135deg, #ffcc7a, #cc7d22);
+}
+
+.palette-swatch[data-palette='indigo'] {
+  background: linear-gradient(135deg, #9b90ff, #5044e0);
+}
+
+.palette-swatch[data-palette='cyan'] {
+  background: linear-gradient(135deg, #4cd9f0, #008bc1);
 }

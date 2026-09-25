@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingDown, TrendingUp, DollarSign, Cigarette, Calendar, Target } from 'lucide-react';
+import { BestDayIcon, WorstDayIcon } from '../components/AppIcons';
 import { getWeeklyData, getMonthlyData, getLogs, getConfig } from '../utils/storage';
 
 export default function StatsPage() {
@@ -182,13 +183,15 @@ export default function StatsPage() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--success)', fontSize: 14, fontWeight: 500 }}>
-              🎯 Best Day
+              <BestDayIcon size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8, color: 'var(--success)' }} />
+              Best Day
             </span>
             <span style={{ fontWeight: 700, color: 'var(--success)' }}>{bestDay} cigs</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--danger)', fontSize: 14, fontWeight: 500 }}>
-              ⚠️ Worst Day
+              <WorstDayIcon size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} color="var(--danger)" />
+              Worst Day
             </span>
             <span style={{ fontWeight: 700, color: 'var(--danger)' }}>{worstDay} cigs</span>
           </div>

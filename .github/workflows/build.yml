@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to read existing release tags for versioning
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -43,6 +45,19 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Determine next app version (1.1, 1.2, ...)
+        id: version
+        run: |
+          latest_tag=$(git tag --list 'v1.*' --sort=-v:refname | head -n1)
+          if [ -z "$latest_tag" ]; then
+            next_minor=1
+          else
+            next_minor=$(echo "$latest_tag" | sed -E 's/v[0-9]+\.([0-9]+).*/\1/' | awk '{print $1+1}')
+          fi
+          version_name="1.${next_minor}"
+          echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
+          echo "Latest tag: ${latest_tag:-none} -> next version: $version_name"
 
       - name: Restore signing keystore
         env:
@@ -75,14 +90,14 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace -PversionCode=${{ github.run_number }} -PversionName=${{ github.run_number }}
+          ./gradlew assembleRelease --no-daemon --stacktrace -PversionCode=${{ github.run_number }} -PversionName=${{ steps.version.outputs.version_name }}
 
       - name: Upload Release APK to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'push'
         with:
-          tag_name: v${{ github.run_number }}
-          name: "Cigi v${{ github.run_number }}"
+          tag_name: v${{ steps.version.outputs.version_name }}
+          name: "Cigi v${{ steps.version.outputs.version_name }}"
           draft: false
           prerelease: true
           files: android/app/build/outputs/apk/release/app-release.apk

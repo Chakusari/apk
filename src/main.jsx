@@ -3,9 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import { applyTheme, getTheme } from './utils/theme.js'
+import { applyTheme, applyPalette, getTheme, getPalette } from './utils/theme.js'
 
 applyTheme(getTheme())
+applyPalette(getPalette())
 
 // PWA Update Detection
 if ('serviceWorker' in navigator) {

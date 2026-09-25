@@ -4,6 +4,13 @@ const STORAGE_KEYS = {
   SETTINGS: 'cigi_settings',
 };
 
+const DEFAULT_SETTINGS = {
+  startText: 'سلام! همراه ترک سیگار شما آماده است.',
+  theme: 'dark',
+  palette: 'default',
+  hideDailyCount: false,
+};
+
 const DEFAULT_CONFIG = {
   reminderHours: 2,
   dailyGoal: 0,
@@ -72,17 +79,16 @@ export function setConfig(config) {
 
 export function getSettings() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS)) || {
-      startText: 'سلام! همراه ترک سیگار شما آماده است.',
-      theme: 'dark',
-    };
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS));
+    return { ...DEFAULT_SETTINGS, ...saved };
   } catch {
-    return { startText: 'سلام! همراه ترک سیگار شما آماده است.', theme: 'dark' };
+    return { ...DEFAULT_SETTINGS };
   }
 }
 
 export function setSettings(settings) {
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  const current = getSettings();
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({ ...current, ...settings }));
 }
 
 export function getLastLog() {

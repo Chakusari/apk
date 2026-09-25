@@ -112,19 +112,15 @@ export async function scheduleReminder() {
   const nextReminder = new Date(lastTime.getTime() + intervalMs);
   const delay = nextReminder.getTime() - Date.now();
 
-  const body =
-    delay <= 0
-      ? "You haven't smoked. Keep it up!"
-      : `${config.reminderHours}h since your last cigarette. Great job!`;
+  // If the scheduled reminder time has already passed, do NOT re-fire on
+  // every app open/resume. The notification is re-armed only when the user
+  // logs a new cigarette (resetting the interval).
+  if (delay <= 0) return;
+
+  const body = `${config.reminderHours}h since your last cigarette. Great job!`;
 
   if (isNative) {
-    const at = delay <= 0 ? new Date(Date.now() + 1000) : nextReminder;
-    await scheduleNative(REMINDER_ID, reminderTitle(), body, at);
-    return;
-  }
-
-  if (delay <= 0) {
-    sendNotification(reminderTitle(), body);
+    await scheduleNative(REMINDER_ID, reminderTitle(), body, nextReminder);
     return;
   }
 
